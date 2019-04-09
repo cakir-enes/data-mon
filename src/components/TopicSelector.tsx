@@ -3,46 +3,32 @@ import { MultiSelect, ItemRenderer, Select, ItemPredicate } from "@blueprintjs/s
 import { MenuItem, Button, Callout, UL } from "@blueprintjs/core";
 import { SelectedTopics }from '../App'
 
-interface ITopic {
-  name: string;
-  added: false;
-}
 
 export const TopicSelector = () => {
   let [topics, setTopics] = useState(["AAA", "BB", "CC"].map(i => ({name: i, added: false} as ITopic)));
-  let [selected, setSelected] = useState([] as ITopic[]);
   let addedTopics = useContext(SelectedTopics)
-
-  let TopicSelects = MultiSelect.ofType<string>();
+  let [selectedTopics, setSelectedTopics] = useState([] as ITopic[])
+  let TopicSelects = MultiSelect.ofType<ITopic>();
   
-  let isSelected = (topic: ITopic) => {
-    return selected.includes(topic, 0)
-  }
-
-  let filterTopic: ItemPredicate<string> = (query, name) => {
+  let filterTopic: ItemPredicate<ITopic> = (query, topic) => {
     return (
-      name.toLowerCase().indexOf(query.toLowerCase())
+      topic.name.toLowerCase().indexOf(query.toLowerCase())
       ) >= 0
   }
 
-  let handleItemSelect = (topic: ITopic) => {
-    let idx = selected.findIndex(i => i.name === topic.name)
-    if (idx !== -1) {
-      selected.splice(idx, 1)
-    } else {
-      setSelected([...selected, name])
-    }
+  let handleTagRemove = (tag: string, idx: number) => {
+    let topicIdx = topics.findIndex(it => it.name === tag)
+    if (topicIdx !== -1) topics[topicIdx].selected = false
   }
-// TODO FIX
-  let handleAddTopics = () => {
-    selectedTopics = selectedTopics.concat(selected)
-    console.log(`STOPICS: ${selectedTopics} S: ${selected}`)
-    selectedTopics.concat(selected);
-    console.log(selectedTopics);
 
-    setTopics(topics.filter(it => selectedTopics.indexOf(it) < 0))
+  let handleAddTopics = () => {
+    let selected = topics.filter(it => it.selected)
+    addedTopics = addedTopics.concat(selected.map(it => it.name))
+    selected.forEach(it => it.added = true)
+    setTopics(topics.filter(it => !it.selected))
+    setSelectedTopics([])
   }
-  
+
   let topicRenderer: ItemRenderer<ITopic> = (topic, {modifiers, handleClick}) => {
     if (!modifiers.matchesPredicate) {
       return null;
@@ -50,7 +36,7 @@ export const TopicSelector = () => {
     return (
     <MenuItem
     active={modifiers.active} 
-    icon={isSelected(topic.name) ? "tick" : "blank"} 
+    icon={topic.selected ? "tick" : "blank"} 
     key={topic.name} 
     text={topic.name} 
     onClick={handleClick}
@@ -63,11 +49,11 @@ export const TopicSelector = () => {
     <TopicSelects
       items={topics}
       itemRenderer={topicRenderer}
-      onItemSelect={handleItemSelect}
-      tagRenderer={i => i}
+      onItemSelect={topic => {topic.selected = !topic.selected; setSelectedTopics(topics.filter(it => it.selected))}}
+      selectedItems={selectedTopics}
+      tagRenderer={topic => topic.name}
       itemPredicate={filterTopic}
-      selectedItems={selected}
-      tagInputProps={{onRemove: (_tag, idx: number) => setSelected(selected.filter(t => t !== _tag))}}
+      tagInputProps={{onRemove: (_tag, idx: number) => topics[topics.findIndex(it => it.name === _tag)] }}
       noResults={<MenuItem disabled={true} text="No results." />}
     >
     </TopicSelects>
@@ -75,3 +61,11 @@ export const TopicSelector = () => {
     </>
   );
 };
+
+
+
+interface ITopic {
+  name: string;
+  added: boolean;
+  selected: boolean;
+}
