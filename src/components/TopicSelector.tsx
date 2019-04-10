@@ -2,11 +2,12 @@ import React, { useState, useContext } from "react";
 import { MultiSelect, ItemRenderer, Select, ItemPredicate } from "@blueprintjs/select";
 import { MenuItem, Button, Callout, UL } from "@blueprintjs/core";
 import { SelectedTopics }from '../App'
+import { isHotkeysDialogShowing } from "@blueprintjs/core/lib/esm/components/hotkeys/hotkeysDialog";
 
 
 export const TopicSelector = () => {
   let [topics, setTopics] = useState(["AAA", "BB", "CC"].map(i => ({name: i, added: false} as ITopic)));
-  let addedTopics = useContext(SelectedTopics)
+  let topicsContext = useContext(SelectedTopics)
   let [selectedTopics, setSelectedTopics] = useState([] as ITopic[])
   let TopicSelects = MultiSelect.ofType<ITopic>();
   
@@ -23,7 +24,7 @@ export const TopicSelector = () => {
 
   let handleAddTopics = () => {
     let selected = topics.filter(it => it.selected)
-    addedTopics = addedTopics.concat(selected.map(it => it.name))
+    topicsContext.addTopics(selected.map(it => it.name))
     selected.forEach(it => it.added = true)
     setTopics(topics.filter(it => !it.selected))
     setSelectedTopics([])
@@ -49,7 +50,9 @@ export const TopicSelector = () => {
     <TopicSelects
       items={topics}
       itemRenderer={topicRenderer}
-      onItemSelect={topic => {topic.selected = !topic.selected; setSelectedTopics(topics.filter(it => it.selected))}}
+      onItemSelect={topic => {
+        topic.selected = !topic.selected; setSelectedTopics(topics.filter(it => it.selected))
+      }}
       selectedItems={selectedTopics}
       tagRenderer={topic => topic.name}
       itemPredicate={filterTopic}
