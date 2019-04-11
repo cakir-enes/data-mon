@@ -4,7 +4,10 @@ import {Button} from '@blueprintjs/core'
 import {MultiSelect} from '@blueprintjs/select'
 import "@blueprintjs/select/lib/css/blueprint-select.css";
 import "@blueprintjs/core/lib/css/blueprint.css";
+
+import '@blueprintjs/table/lib/css/table.css'
 import { TopicSelector } from './components/TopicSelector';
+import { Topic } from './components/Topic';
 
 export const SelectedTopics = React.createContext({selected: [] as string[], addTopics: (it: string[]) => {}})
 
@@ -38,6 +41,7 @@ const App = () => {
             }}>
         <TopicSelector />
         </SelectedTopics.Provider>
+        <Topic />
       </div>
   )
 }
