@@ -1,15 +1,13 @@
 import React, { useState } from "react";
 import {
-  Label,
   Button,
-  Card,
   Divider,
   Collapse,
-  Icon,
   ControlGroup,
-  HTMLSelect
+  HTMLSelect,
 } from "@blueprintjs/core";
-import { Table, Column, Cell, RegionCardinality, SelectionModes } from "@blueprintjs/table";
+import { Table, Column, Cell, RegionCardinality, SelectionModes, ColumnHeaderCell } from "@blueprintjs/table";
+import { useTopic } from '../api/TopicHooks';
 
 const style: React.CSSProperties = {
   fontSize: "inherit",
@@ -20,28 +18,11 @@ const style: React.CSSProperties = {
   WebkitTapHighlightColor: "rgba(0, 0, 0, 0)"
 };
 
-const formatDate = (date: Date) =>
-  `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
-const str = "";
-function parseJson(obj: any, depth: number = 0) {
-  for (var prop in obj) {
-    if (typeof obj[prop] === "object") {
-      parseJson(obj[prop], depth + 2);
-    }
-    str.concat(" ".repeat(depth), obj[prop]);
-  }
-}
 
-const cellRenderer = (rowIndex: number) => {
-  return <Cell>{`$${(rowIndex * 10).toFixed(2)}`}</Cell>;
-};
-
-export const Topic = () => {
-  let topicName = "tr.com.zileley.lelbeley";
-  let [recentTopics, setRecentTopics] = useState([] as any[]);
-  let [lastReceived, setLastReceived] = useState(new Date(Date.now()));
+export const Topic = ({name}: {name: string}) => {
   let [isOpen, setIsOpen] = useState(false);
-
+  let topic = useTopic(name)
+  console.log("TOPIC " + topic.fields)
   return (
     <div style={{ width: "100%" }}>
       <ControlGroup>
@@ -49,39 +30,23 @@ export const Topic = () => {
           icon={isOpen ? "caret-down" : "caret-right"}
           fill={true}
           alignText="left"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => { setIsOpen(!isOpen); console.log(topic) }}
         >
-          <div style={{ float: "left" }}>{topicName}</div>
+          <div style={{ float: "left" }}>{topic.name}</div>
           <div style={{ float: "right", overflow: "hidden" }}>
-            Last Received: {formatDate(lastReceived)}
+            Last Received: {topic.lastRecieved}
           </div>
         </Button>
         <HTMLSelect options={[5, 10, 15]} />
       </ControlGroup>
       <Collapse isOpen={isOpen}>
-        <Table onSelection={(e) => {console.log(e)}} selectionModes={SelectionModes.ROWS_ONLY} numRows={10}>
-          <Column name="asd\nasdas" cellRenderer={cellRenderer}>
-          
-          </Column>
+        <Table  selectionModes={SelectionModes.COLUMNS_ONLY} numRows={topic && topic.fields ? topic.fields.length : 0}>
+          {[<Column  name="FIELDS" cellRenderer={i => <Cell key={i+""}>{(topic && topic) ? topic.fields[i] : ""}</Cell>} />].concat(
+            topic && topic.topicStack && topic.fields ? topic.topicStack.map((t, i) => <Column name={i+""} cellRenderer={i => <Cell key={i+""}>{t[topic.fields[i]]}</Cell>} />)
+          : [])}
         </Table>
       </Collapse>
     </div>
   );
 };
 
-function f(obj: any, str = "", topic: any) {
-  let type = Array.isArray(obj) ? "array" : typeof obj;
-  switch (type) {
-    case "array":
-      obj.forEach((it: any, idx: number) => f(it, `${str}[${idx}]`, topic));
-      break;
-    case "object":
-      for (var prop in obj) {
-        f(obj[prop], `${str}.${prop}`, topic);
-      }
-      break;
-    default:
-      console.log(`${str} -> ${obj}`);
-      topic[str] = obj;
-  }
-}

@@ -2,7 +2,6 @@ import React, { useState, useContext } from "react";
 import { MultiSelect, ItemRenderer, Select, ItemPredicate } from "@blueprintjs/select";
 import { MenuItem, Button, Callout, UL } from "@blueprintjs/core";
 import { SelectedTopics }from '../App'
-import { isHotkeysDialogShowing } from "@blueprintjs/core/lib/esm/components/hotkeys/hotkeysDialog";
 
 
 export const TopicSelector = () => {
