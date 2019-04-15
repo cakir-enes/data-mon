@@ -1,40 +1,37 @@
 import { useState, useEffect } from "react";
-import {topicApi} from './TopicApi'
+import { topicApi } from './TopicApi'
 
-const formatDate = (date: Date) =>
-`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+export function useTopic(name: string): [TopicState, (i: number) => void] {
+    let [topic, setTopic] = useState({ topicStack: [] as any[]} as TopicState)
+    let [numOfTopics, setNumOfTopics] = useState(5)
 
-export function useTopic(name: string): TopicState {
-  let [topic, setTopic] = useState({} as TopicState)
+    useEffect(() => {
+        const handleNewTopic = (newTopic: any) => {
+            let topics = topic.topicStack
+            topics.push(newTopic)
+            if (topics.length >= numOfTopics) {
+                topics = topics.slice(topics.length - numOfTopics , topics.length)
+            }
+            setTopic({
+                name,
+                lastRecieved: newTopic.timeStamp,
+                fields: topicApi.getFieldsOf(name),
+                topicStack: topics
+            })
+        }
+        topicApi.subscribeToTopic(name, handleNewTopic)
+        return () => topicApi.unsubscribeFromTopic(name)
+    }, [numOfTopics])
 
-  useEffect(() => {
-      function handleNewTopic(newTopic: any) {
-          let topics = topic.topicStack || []
-          if (topics.length >= topic.numOfTopics)
-              topics.pop()
-          topics.push(newTopic)
-          setTopic({
-              name,
-              lastRecieved: "",
-              fields: topicApi.getFieldsOf(name),
-              numOfTopics: 5,
-              topicStack: topics
-          })    
-      }
-      topicApi.subscribeToTopic(name, handleNewTopic)
-      return () => topicApi.unsubscribeFromTopic(name)
-  }, [])
-  console.log(topic)
-  return topic
+    let updateNumOfLastTopics = (i: number) => {
+        setNumOfTopics(i)
+    }
+
+    return [topic, updateNumOfLastTopics]
 }
 
 export function useSubscriptions(): string[] {
     let [subs, setSubs] = useState(["TEST"] as string[])
-    useEffect(() => {
-        
-        }
-    )
-
     return subs
 }
 
@@ -44,7 +41,6 @@ interface TopicState {
     name: string;
     lastRecieved: string;
     fields: string[];
-    numOfTopics: number;
     topicStack: any[];
 }
 
