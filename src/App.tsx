@@ -1,5 +1,5 @@
 import React, { Component, useState, useRef, useEffect } from 'react';
-import {MultiSelect} from '@blueprintjs/select'
+import { MultiSelect } from '@blueprintjs/select'
 import "@blueprintjs/select/lib/css/blueprint-select.css";
 import "@blueprintjs/core/lib/css/blueprint.css";
 
@@ -10,7 +10,7 @@ import { topicApi } from "./api/TopicApi"
 import { useFocusedTopicContext, useSubscriptionsContext } from './api/EasyState';
 import { Label } from '@blueprintjs/core';
 
-export const SelectedTopics = React.createContext({selected: [] as string[], addTopics: (it: string[]) => {}})
+export const SelectedTopics = React.createContext({ selected: [] as string[], addTopics: (it: string[]) => { } })
 
 
 const Labele = () => {
@@ -19,27 +19,19 @@ const Labele = () => {
 }
 
 const App = () => {
-  let Selections = MultiSelect.ofType<String>()
-  let [selected, setSelected] = useState([] as string[])
-  useEffect(() => {
-    console.log(`Selected:: ${selected}`)
-  }, [selected])
   return (
-      <div className="App">
-        <SelectedTopics.Provider 
-          value={{selected: selected, addTopics: (it: string[]) => {
-            setSelected(selected.concat(it)); console.log(`Selected: ${selected} Added: ${it}`)}
-            }}>
+    <div className="App">
+      <useSubscriptionsContext.Provider>
         <TopicSelector />
-        </SelectedTopics.Provider>
-        <useFocusedTopicContext.Provider>
-          <useSubscriptionsContext.Provider>
+      </useSubscriptionsContext.Provider>
+      <useFocusedTopicContext.Provider>
+        <useSubscriptionsContext.Provider initialSubs={[""]}>
           <Topic name="TEST" />
           <Labele />
-          </useSubscriptionsContext.Provider>
-        </useFocusedTopicContext.Provider>
+        </useSubscriptionsContext.Provider>
+      </useFocusedTopicContext.Provider>
 
-      </div>
+    </div>
   )
 }
 

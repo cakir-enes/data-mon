@@ -35,8 +35,8 @@ export const Topic = ({name}: {name: string}) => {
       <Collapse isOpen={isOpen}>
       <div style={{height: "400px"}}>
         <Table selectionModes={SelectionModes.COLUMNS_ONLY} numRows={topic && topic.fields ? topic.fields.length : 0}>
-          {[<Column  name="FIELDS" cellRenderer={i => <Cell key={i+""}>{(topic && topic) ? topic.fields[i] : ""}</Cell>} />].concat(
-            topic && topic.topicStack && topic.fields ? topic.topicStack.map((t, i) => <Column name={t.timeStamp} cellRenderer={i => <Cell key={i+""}>{t[topic.fields[i]]}</Cell>} />)
+          {[<Column key={"FIELDSKEY"} name="FIELDS" cellRenderer={i => <Cell key={i+""}>{(topic && topic) ? topic.fields[i] : ""}</Cell>} />].concat(
+            topic && topic.topicStack && topic.fields ? topic.topicStack.map((t, i) => <Column key={i} name={t.timeStamp} cellRenderer={i => <Cell key={i+""}>{t[topic.fields[i]]}</Cell>} />)
           : [])}
         </Table>
         </div>

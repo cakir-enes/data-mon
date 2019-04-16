@@ -10,10 +10,10 @@ function useFocusedTopic({initalFocusedTopic = (null as (TopicState | null))} = 
 }
 
 function useSubscriptions({initialSubs = [] as string[]} = {}) {
-    const [subs, setSubs] = useState([] as string[])
-    const addSubscription = (t: string) => setSubs([...subs, t])
+    const [subs, setSubs] = useState(initialSubs)
+    const addSubscription = (t: string[]) => setSubs(subs.concat(t))
     const delSubscription = (t: string) => setSubs(subs.filter(i => i !== t))
-    return {subscriptions: subs, addSubscription, delSubscription}
+    return {subs, addSubscription, delSubscription}
 }
 
 // function useFocusedTopic({ initialTopic = "None"} = {}) {
@@ -23,4 +23,4 @@ function useSubscriptions({initialSubs = [] as string[]} = {}) {
 // }
 
 export const useFocusedTopicContext = createUseContext(useFocusedTopic, value => [value.topic])
-export const useSubscriptionsContext = createUseContext(useSubscriptions, value => [value.subscriptions])
+export const useSubscriptionsContext = createUseContext(useSubscriptions, value => [value.subs])

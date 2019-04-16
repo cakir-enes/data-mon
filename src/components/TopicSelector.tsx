@@ -1,29 +1,31 @@
-import React, { useState, useContext } from "react";
-import { MultiSelect, ItemRenderer, Select, ItemPredicate } from "@blueprintjs/select";
-import { MenuItem, Button, Callout, UL } from "@blueprintjs/core";
-import { SelectedTopics }from '../App'
+import React, { useState } from "react";
+import { MultiSelect, ItemRenderer, ItemPredicate } from "@blueprintjs/select";
+import { MenuItem, Button} from "@blueprintjs/core";
+import { useSubscriptionsContext } from '../api/EasyState';
 
 
 export const TopicSelector = () => {
   let [topics, setTopics] = useState(["AAA", "BB", "CC"].map(i => ({name: i, added: false} as ITopic)));
-  let topicsContext = useContext(SelectedTopics)
   let [selectedTopics, setSelectedTopics] = useState([] as ITopic[])
+  let {subs, addSubscription, delSubscription} = useSubscriptionsContext()
   let TopicSelects = MultiSelect.ofType<ITopic>();
   
   let filterTopic: ItemPredicate<ITopic> = (query, topic) => {
     return (
-      topic.name.toLowerCase().indexOf(query.toLowerCase())
+      topic.name.toLowerCase().indexOf(query.toLowerCase()) && !topic.selected
       ) >= 0
   }
 
   let handleTagRemove = (tag: string, idx: number) => {
     let topicIdx = topics.findIndex(it => it.name === tag)
-    if (topicIdx !== -1) topics[topicIdx].selected = false
+    topics[topicIdx].selected = false
+    setSelectedTopics(topics.filter(i => i.selected))
+    console.log(topics)
   }
 
   let handleAddTopics = () => {
     let selected = topics.filter(it => it.selected)
-    topicsContext.addTopics(selected.map(it => it.name))
+    addSubscription(selected.map(i => i.name))
     selected.forEach(it => it.added = true)
     setTopics(topics.filter(it => !it.selected))
     setSelectedTopics([])
@@ -55,7 +57,7 @@ export const TopicSelector = () => {
       selectedItems={selectedTopics}
       tagRenderer={topic => topic.name}
       itemPredicate={filterTopic}
-      tagInputProps={{onRemove: (_tag, idx: number) => topics[topics.findIndex(it => it.name === _tag)] }}
+      tagInputProps={{onRemove: (_tag, idx: number) => handleTagRemove(_tag, idx) }}
       noResults={<MenuItem disabled={true} text="No results." />}
     >
     </TopicSelects>
