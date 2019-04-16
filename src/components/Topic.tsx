@@ -7,11 +7,14 @@ import {
   HTMLSelect,
 } from "@blueprintjs/core";
 import { Table, Column, Cell, RegionCardinality, SelectionModes, ColumnHeaderCell } from "@blueprintjs/table";
-import { useTopic } from '../api/TopicHooks';
+import { useTopic, useFocusedTopic } from '../api/TopicHooks';
+import { useFocusedTopicContext } from '../api/EasyState';
 
 export const Topic = ({name}: {name: string}) => {
   let [isOpen, setIsOpen] = useState(false);
   let [topic, updateNumOfLastTopics] = useTopic(name)
+  let { focusToTopic } = useFocusedTopicContext()
+
   return (
     <div style={{ width: "100%" }}>
       <ControlGroup>
@@ -26,6 +29,7 @@ export const Topic = ({name}: {name: string}) => {
             Last Received: {topic.lastRecieved}
           </div>
         </Button>
+        <Button text="Publish"  onClick={() => focusToTopic(topic)} />
         <HTMLSelect options={[5, 10, 15]} onChange={e => updateNumOfLastTopics( +e.currentTarget.value)} />
       </ControlGroup>
       <Collapse isOpen={isOpen}>
