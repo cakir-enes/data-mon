@@ -1,12 +1,9 @@
 import React, { Component, useState, useRef, useEffect } from "react";
-import { MultiSelect } from "@blueprintjs/select";
 import "@blueprintjs/select/lib/css/blueprint-select.css";
 import "@blueprintjs/core/lib/css/blueprint.css";
 
 import "@blueprintjs/table/lib/css/table.css";
-import { TopicSelector } from "./components/TopicSelector";
 import { Topic } from "./components/Topic";
-import { topicApi } from "./api/TopicApi";
 import {
   useFocusedTopicContext,
   useSubscriptionsContext
@@ -27,10 +24,16 @@ const SubscriptionList = () => {
 };
 
 const TopicSelectorAndPublisher = () => {
-  const { addSubscription, delSubscription } = useSubscriptionsContext();
+  const { subs, addSubscription, delSubscription } = useSubscriptionsContext();
+  const [availableTopics, setAvlTopics] = useState(
+    ["AAA", "VVVV", "CCCC"].map(i => ({ name: i, added: false }))
+  );
+  useEffect(() => {
+    availableTopics.forEach(t => (t.added = subs.includes(t.name)));
+  }, [subs]);
   return (
     <OmniSelector
-      availableTopics={["AAAA", "VVVV", "CCC"]}
+      availableTopics={availableTopics}
       addSubscription={addSubscription}
       delSubscription={delSubscription}
     />

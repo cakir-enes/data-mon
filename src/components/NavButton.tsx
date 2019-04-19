@@ -16,7 +16,7 @@ export const NavButton: React.SFC<INavButtonProps> = props => (
   >
     <Icon style={{ alignSelf: "flex-start" }} icon={props.icon} />
     <span
-      style={{ alignSelf: "center", paddingInline: "15px" }}
+      style={{ alignSelf: "center", paddingLeft: "15px", paddingRight: "15px" }}
       className={Classes.FILL}
     >
       {props.text}

@@ -1,43 +1,30 @@
-import React, { memo } from "react";
+import React from "react";
 import {
   HotkeysTarget,
   Hotkeys,
   Hotkey,
   MenuItem,
   Menu,
-  KeyCombo,
   Dialog,
   Classes,
   Button,
-  Icon,
-  Label,
-  Callout,
   Divider
 } from "@blueprintjs/core";
-import { Omnibar, ItemRenderer } from "@blueprintjs/select";
+import { Omnibar, ItemRenderer, ItemPredicate } from "@blueprintjs/select";
 import { TopicTree } from "./TopicTree";
 import { NavButton } from "./NavButton";
 
-interface ITopic {
+export interface IOmniTopic {
   name: string;
   added: boolean;
 }
 
-const TopicOmnibar = Omnibar.ofType<ITopic>();
+const TopicOmnibar = Omnibar.ofType<IOmniTopic>();
 
 @HotkeysTarget
 export class OmniSelector extends React.PureComponent<
-  {
-    availableTopics: string[];
-    addSubscription: (names: string[]) => void;
-    delSubscription: (name: string) => void;
-  },
-  {
-    isOpen: boolean;
-    isOnSubMode: boolean;
-    isPublishing: boolean;
-    activeTopicName: string;
-  }
+  ISelectorProps,
+  ISelectorState
 > {
   state = {
     isOpen: false,
@@ -46,9 +33,7 @@ export class OmniSelector extends React.PureComponent<
     activeTopicName: ""
   };
 
-  items = this.props.availableTopics.map(
-    i => ({ name: i, added: false } as ITopic)
-  );
+  items = this.props.availableTopics;
 
   renderHotkeys() {
     return (
@@ -75,7 +60,10 @@ export class OmniSelector extends React.PureComponent<
     );
   }
 
-  topicRenderer: ItemRenderer<ITopic> = (topic, { modifiers, handleClick }) => {
+  topicRenderer: ItemRenderer<IOmniTopic> = (
+    topic,
+    { modifiers, handleClick }
+  ) => {
     if (!modifiers.matchesPredicate) {
       return null;
     }
@@ -112,7 +100,11 @@ export class OmniSelector extends React.PureComponent<
     );
   };
 
-  handleItemSelect = (item: ITopic) => {
+  filterTopic: ItemPredicate<IOmniTopic> = (query, topic) => {
+    return topic.name.toLowerCase().indexOf(query.toLowerCase()) >= 0;
+  };
+
+  handleItemSelect = (item: IOmniTopic) => {
     if (this.state.isOnSubMode) {
       item.added
         ? this.props.delSubscription(item.name)
@@ -136,7 +128,7 @@ export class OmniSelector extends React.PureComponent<
             text="Subscribe"
             onClick={() => console.log()}
           />
-          <Divider style={{ marginInline: "40px" }} />
+          <Divider style={{ marginLeft: "40px", marginRight: "40px" }} />
           <NavButton
             icon="search-around"
             hotkey="shift + p"
@@ -152,6 +144,7 @@ export class OmniSelector extends React.PureComponent<
               : "Publish a topic.."
           }}
           itemListRenderer={this.renderItemList}
+          itemPredicate={this.filterTopic}
           itemsEqual="name"
           items={this.items}
           itemRenderer={this.topicRenderer}
@@ -177,4 +170,17 @@ export class OmniSelector extends React.PureComponent<
       </>
     );
   }
+}
+
+interface ISelectorProps {
+  availableTopics: IOmniTopic[];
+  addSubscription: (names: string[]) => void;
+  delSubscription: (name: string) => void;
+}
+
+interface ISelectorState {
+  isOpen: boolean;
+  isOnSubMode: boolean;
+  isPublishing: boolean;
+  activeTopicName: string;
 }
