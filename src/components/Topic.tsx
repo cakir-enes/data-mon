@@ -4,16 +4,20 @@ import {
   Divider,
   Collapse,
   ControlGroup,
-  HTMLSelect,
+  HTMLSelect
 } from "@blueprintjs/core";
-import { Table, Column, Cell, RegionCardinality, SelectionModes, ColumnHeaderCell } from "@blueprintjs/table";
-import { useTopic, useFocusedTopic } from '../api/TopicHooks';
-import { useFocusedTopicContext } from '../api/EasyState';
+import { Table, Column, Cell, SelectionModes } from "@blueprintjs/table";
+import { useTopic } from "../api/TopicHooks";
+import {
+  useFocusedTopicContext,
+  useSubscriptionsContext
+} from "../api/EasyState";
 
-export const Topic = ({name}: {name: string}) => {
+export const Topic = ({ name }: { name: string }) => {
   let [isOpen, setIsOpen] = useState(false);
-  let [topic, updateNumOfLastTopics] = useTopic(name)
-  let { focusToTopic } = useFocusedTopicContext()
+  let [topic, _] = useTopic(name);
+  let { focusToTopic } = useFocusedTopicContext();
+  let { delSubscription } = useSubscriptionsContext();
 
   return (
     <div style={{ width: "100%" }}>
@@ -29,16 +33,40 @@ export const Topic = ({name}: {name: string}) => {
             Last Received: {topic.lastRecieved}
           </div>
         </Button>
-        <Button text="Publish"  onClick={() => focusToTopic(topic)} />
-        <HTMLSelect options={[5, 10, 15]} onChange={e => updateNumOfLastTopics( +e.currentTarget.value)} />
+        <Button text="Publish" onClick={() => focusToTopic(topic)} />
+        <Button icon="cross" onClick={() => delSubscription(name)} />
+        {/* <HTMLSelect options={[ 5, 10, 15 ]} onChange={(e) => updateNumOfLastTopics(+e.currentTarget.value)} /> */}
       </ControlGroup>
       <Collapse isOpen={isOpen}>
-      <div style={{height: "400px"}}>
-        <Table selectionModes={SelectionModes.COLUMNS_ONLY} numRows={topic && topic.fields ? topic.fields.length : 0}>
-          {[<Column key={"FIELDSKEY"} name="FIELDS" cellRenderer={i => <Cell key={i+""}>{(topic && topic) ? topic.fields[i] : ""}</Cell>} />].concat(
-            topic && topic.topicStack && topic.fields ? topic.topicStack.map((t, i) => <Column key={i} name={t.timeStamp} cellRenderer={i => <Cell key={i+""}>{t[topic.fields[i]]}</Cell>} />)
-          : [])}
-        </Table>
+        <div style={{ height: "400px" }}>
+          <Table
+            selectionModes={SelectionModes.COLUMNS_ONLY}
+            numRows={topic && topic.fields ? topic.fields.length : 0}
+          >
+            {[
+              <Column
+                key={"FIELDSKEY"}
+                name="FIELDS"
+                cellRenderer={i => (
+                  <Cell key={i + ""}>
+                    {topic && topic ? topic.fields[i] : ""}
+                  </Cell>
+                )}
+              />
+            ].concat(
+              topic && topic.topicStack && topic.fields
+                ? topic.topicStack.map((t, i) => (
+                    <Column
+                      key={i}
+                      name={t.timeStamp}
+                      cellRenderer={i => (
+                        <Cell key={i + ""}>{t[topic.fields[i]]}</Cell>
+                      )}
+                    />
+                  ))
+                : []
+            )}
+          </Table>
         </div>
       </Collapse>
     </div>

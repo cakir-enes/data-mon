@@ -1,13 +1,10 @@
 import { useState, useEffect, createContext, useReducer } from "react";
-import { topicApi } from './TopicApi'
-import { TopicSelector } from '../components/TopicSelector';
-
-
+import { topicApi } from "./TopicApi";
+import { TopicSelector } from "../components/TopicSelector";
 
 // export const SET_FOCUSED_TOPIC = 'SET_FOCUSED_TOPIC'
 // export const ADD_SUB = 'ADD_SUB'
 // export const DEL_SUB = "DEL_SUB"
-
 
 // interface SetFocusedTopicAction {
 //     type: typeof SET_FOCUSED_TOPIC
@@ -74,15 +71,13 @@ import { TopicSelector } from '../components/TopicSelector';
 // }
 
 interface IAppContext {
-    focusedTopic: TopicState | null
-    subscriptions: string[]
-    addSubscription: (t: string) => void
-    delSubscription: (t: string) => void
-    setFocusedTopic: (t: TopicState) => void
+  focusedTopic: TopicState | null;
+  subscriptions: string[];
+  addSubscription: (t: string) => void;
+  delSubscription: (t: string) => void;
+  setFocusedTopic: (t: TopicState) => void;
 }
-export const AppContext = createContext<Partial<IAppContext>>({})
-
-
+export const AppContext = createContext<Partial<IAppContext>>({});
 
 // export const StateProvider: React.FunctionComponent<{}> = props => {
 
@@ -93,55 +88,40 @@ export const AppContext = createContext<Partial<IAppContext>>({})
 //     )
 // }
 
-
-
-
 export function useTopic(name: string): [TopicState, (i: number) => void] {
-    let [topic, setTopic] = useState({ topicStack: [] as any[] } as TopicState)
-    let [numOfTopics, setNumOfTopics] = useState(100)
+  let [topic, setTopic] = useState({ topicStack: [] as any[] } as TopicState);
+  let [numOfTopics, setNumOfTopics] = useState(100);
 
-    useEffect(() => {
-        const handleNewTopic = (newTopic: any) => {
-            let topics = topic.topicStack
-            topics.push(newTopic)
-            if (topics.length >= numOfTopics) {
-                topics = topics.slice(topics.length - numOfTopics, topics.length)
-            }
-            setTopic({
-                name,
-                lastRecieved: newTopic.timeStamp,
-                fields: topicApi.getFieldsOf(name),
-                topicStack: topics
-            })
-        }
-        topicApi.subscribeToTopic(name, handleNewTopic)
-        return () => topicApi.unsubscribeFromTopic(name)
-    }, [numOfTopics])
+  useEffect(() => {
+    const handleNewTopic = (newTopic: any) => {
+      let topics = topic.topicStack;
+      topics.push(newTopic);
+      if (topics.length >= numOfTopics) {
+        topics = topics.slice(topics.length - numOfTopics, topics.length);
+      }
+      setTopic({
+        name,
+        lastRecieved: newTopic.timeStamp,
+        fields: topicApi.getFieldsOf(name),
+        topicStack: topics
+      });
+    };
+    topicApi.subscribeToTopic(name, handleNewTopic);
+    return () => topicApi.unsubscribeFromTopic(name);
+  }, [numOfTopics]);
 
-    let updateNumOfLastTopics = (i: number) => {
-        setNumOfTopics(i)
-    }
+  let updateNumOfLastTopics = (i: number) => {
+    setNumOfTopics(i);
+  };
 
-    return [topic, updateNumOfLastTopics]
+  return [topic, updateNumOfLastTopics];
 }
-
-export function useSubscriptions(): string[] {
-    let [subs, setSubs] = useState(["TEST"] as string[])
-    return subs
-}
-
-export function useFocusedTopic(): [TopicState, (t: TopicState) => void] {
-    let [focusedTopic, setFocusedTopic] = useState({ name: "", fields: [] as string[] } as TopicState)
-    return [focusedTopic, setFocusedTopic]
-}
-
-
 
 export interface TopicState {
-    name: string;
-    lastRecieved: string;
-    fields: string[];
-    topicStack: any[];
+  name: string;
+  lastRecieved: string;
+  fields: string[];
+  topicStack: any[];
 }
 
 // export interface AppState {
