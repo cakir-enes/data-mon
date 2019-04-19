@@ -4,16 +4,19 @@ import {
   Hotkeys,
   Hotkey,
   MenuItem,
-  Button,
   Menu,
-  KeyCombo
+  KeyCombo,
+  Dialog,
+  Classes,
+  Button,
+  Icon,
+  Label,
+  Callout,
+  Divider
 } from "@blueprintjs/core";
-import {
-  Omnibar,
-  ItemRenderer,
-  ItemPredicate,
-  IItemRendererProps
-} from "@blueprintjs/select";
+import { Omnibar, ItemRenderer } from "@blueprintjs/select";
+import { TopicTree } from "./TopicTree";
+import { NavButton } from "./NavButton";
 
 interface ITopic {
   name: string;
@@ -24,12 +27,23 @@ const TopicOmnibar = Omnibar.ofType<ITopic>();
 
 @HotkeysTarget
 export class OmniSelector extends React.PureComponent<
-  { availableTopics: string[]; addSubscription: (names: string[]) => void },
-  { isOpen: boolean; isOnSubMode: boolean }
+  {
+    availableTopics: string[];
+    addSubscription: (names: string[]) => void;
+    delSubscription: (name: string) => void;
+  },
+  {
+    isOpen: boolean;
+    isOnSubMode: boolean;
+    isPublishing: boolean;
+    activeTopicName: string;
+  }
 > {
   state = {
     isOpen: false,
-    isOnSubMode: false
+    isOnSubMode: false,
+    isPublishing: false,
+    activeTopicName: ""
   };
 
   items = this.props.availableTopics.map(
@@ -71,6 +85,13 @@ export class OmniSelector extends React.PureComponent<
         key={topic.name}
         text={topic.name}
         onClick={handleClick}
+        icon={
+          this.state.isOnSubMode
+            ? topic.added
+              ? "tick"
+              : "plus"
+            : "arrow-right"
+        }
         shouldDismissPopover={false}
       />
     );
@@ -91,34 +112,46 @@ export class OmniSelector extends React.PureComponent<
     );
   };
 
-  filterTopic: ItemPredicate<ITopic> = (query, topic) => {
-    return (
-      topic.name.toLowerCase().indexOf(query.toLowerCase()) >= 0 && !topic.added
-    );
-  };
-
   handleItemSelect = (item: ITopic) => {
     if (this.state.isOnSubMode) {
-      item.added = true;
-      this.props.addSubscription([item.name]);
+      item.added
+        ? this.props.delSubscription(item.name)
+        : this.props.addSubscription([item.name]);
+      item.added = !item.added;
+    } else {
+      this.setState({
+        activeTopicName: item.name,
+        isPublishing: true,
+        isOpen: false
+      });
     }
-    console.log(`NEW ITEMS: ${this.items.map(i => `${i.name} ${i.added} - `)}`);
   };
-
   render() {
     return (
       <>
-        <span>
-          Subscribe to topic
-          <KeyCombo combo="shift + S" />
-        </span>
+        <div style={{ display: "flex" }}>
+          <NavButton
+            icon="search"
+            hotkey="shift + s"
+            text="Subscribe"
+            onClick={() => console.log()}
+          />
+          <Divider style={{ marginInline: "40px" }} />
+          <NavButton
+            icon="search-around"
+            hotkey="shift + p"
+            text="Publish"
+            onClick={() => console.log()}
+          />
+        </div>
         <TopicOmnibar
           key="SubSearchbar"
-          inputProps={{ placeholder: "Search for subscription..." }}
+          inputProps={{
+            placeholder: this.state.isOnSubMode
+              ? "Subscribe to a topic..."
+              : "Publish a topic.."
+          }}
           itemListRenderer={this.renderItemList}
-          itemListPredicate={(query, items) =>
-            items.filter(item => this.filterTopic(query, item))
-          }
           itemsEqual="name"
           items={this.items}
           itemRenderer={this.topicRenderer}
@@ -127,6 +160,20 @@ export class OmniSelector extends React.PureComponent<
           onItemSelect={this.handleItemSelect}
           onClose={() => this.setState({ isOpen: false })}
         />
+        <Dialog
+          title={`Publish ${this.state.activeTopicName}:`}
+          isOpen={this.state.isPublishing}
+          onClose={() => this.setState({ isPublishing: false })}
+        >
+          <div className={Classes.DIALOG_BODY}>
+            <TopicTree name={this.state.activeTopicName} />
+          </div>
+          <div className={Classes.DIALOG_FOOTER}>
+            <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+              <Button text="PUBLISH" />
+            </div>
+          </div>
+        </Dialog>
       </>
     );
   }

@@ -13,7 +13,13 @@ import {
   useSubscriptionsContext
 } from "../api/EasyState";
 
-export const Topic = ({ name }: { name: string }) => {
+export const Topic = ({
+  name,
+  tabIndex
+}: {
+  name: string;
+  tabIndex: number;
+}) => {
   let [isOpen, setIsOpen] = useState(false);
   let [topic, _] = useTopic(name);
   let { focusToTopic } = useFocusedTopicContext();
@@ -21,7 +27,7 @@ export const Topic = ({ name }: { name: string }) => {
 
   return (
     <div style={{ width: "100%" }}>
-      <ControlGroup>
+      <ControlGroup tabIndex={tabIndex}>
         <Button
           icon={isOpen ? "caret-down" : "caret-right"}
           fill={true}

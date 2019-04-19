@@ -107,7 +107,6 @@ function _parseJson(obj: any, str = "", topic: any) {
       }
       break;
     default:
-      console.log(`${str} -> ${obj}`);
       topic[str] = obj;
   }
 }

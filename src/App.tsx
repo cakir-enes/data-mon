@@ -11,58 +11,41 @@ import {
   useFocusedTopicContext,
   useSubscriptionsContext
 } from "./api/EasyState";
-import { Label, UL } from "@blueprintjs/core";
+import { UL, FocusStyleManager } from "@blueprintjs/core";
 import { OmniSelector } from "./components/OmniSelector";
-
-export const SelectedTopics = React.createContext({
-  selected: [] as string[],
-  addTopics: (it: string[]) => {}
-});
-
-const Labele = () => {
-  const lele = useFocusedTopicContext();
-  const { subs } = useSubscriptionsContext();
-
-  return (
-    <div>
-      <Label>{lele.topic ? lele.topic.name : "NONE"}</Label>
-      <UL>
-        {subs.map(i => (
-          <Topic name="TEST" key={i} />
-        ))}
-      </UL>
-    </div>
-  );
-};
 
 const SubscriptionList = () => {
   const { subs } = useSubscriptionsContext();
+
   return (
     <UL>
-      {subs.map(name => (
-        <Topic name={name} key={name} />
+      {subs.map((name, i) => (
+        <Topic name={name} key={name} tabIndex={i} />
       ))}
     </UL>
   );
 };
 
 const TopicSelectorAndPublisher = () => {
-  const { addSubscription } = useSubscriptionsContext();
+  const { addSubscription, delSubscription } = useSubscriptionsContext();
   return (
     <OmniSelector
       availableTopics={["AAAA", "VVVV", "CCC"]}
       addSubscription={addSubscription}
+      delSubscription={delSubscription}
     />
   );
 };
 
 const App = () => {
+  FocusStyleManager.onlyShowFocusOnTabs();
   return (
     <div className="App">
       <useFocusedTopicContext.Provider>
         <useSubscriptionsContext.Provider>
-          {/* <TopicSelector /> */}
-          <TopicSelectorAndPublisher />
+          <div style={{ justifyContent: "center", display: "flex" }}>
+            <TopicSelectorAndPublisher />
+          </div>
           <SubscriptionList />
         </useSubscriptionsContext.Provider>
       </useFocusedTopicContext.Provider>

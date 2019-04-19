@@ -24,4 +24,7 @@ export const useFocusedTopicContext = createUseContext(
   useFocusedTopic,
   value => [value.topic]
 );
-export const useSubscriptionsContext = createUseContext(useSubscriptions);
+export const useSubscriptionsContext = createUseContext(
+  useSubscriptions,
+  value => [value.subs]
+);
