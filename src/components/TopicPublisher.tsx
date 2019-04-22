@@ -9,16 +9,12 @@ export const useIsPublishing = () => {
 };
 
 export const TopicPublisher = ({ isPublishing }: { isPublishing: boolean }) => {
-  //   useEffect(() => {
-  //     console.log("RENDERING");
-  //   }, [isPublishing]);
-
   return (
     <Dialog title="Publish a Topic:" isOpen={isPublishing}>
       <div className={Classes.DIALOG_BODY}>zilelelleley</div>
       <div className={Classes.DIALOG_FOOTER}>
         <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-          <Button text="PUBLISH" />
+          <Button text="PUBLISHthss" />
         </div>
       </div>
     </Dialog>

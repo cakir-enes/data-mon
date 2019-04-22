@@ -1,11 +1,5 @@
 import React, { useState } from "react";
-import {
-  Button,
-  Divider,
-  Collapse,
-  ControlGroup,
-  HTMLSelect
-} from "@blueprintjs/core";
+import { Button, Collapse, ControlGroup } from "@blueprintjs/core";
 import { Table, Column, Cell, SelectionModes } from "@blueprintjs/table";
 import { useTopic } from "../api/TopicHooks";
 import {

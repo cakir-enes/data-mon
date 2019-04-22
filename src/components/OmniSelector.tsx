@@ -121,7 +121,10 @@ export class OmniSelector extends React.PureComponent<
   render() {
     return (
       <>
-        <div style={{ display: "flex" }}>
+        <div
+          style={{ display: "flex", width: "100%", justifyContent: "center" }}
+          className={Classes.ELEVATION_0}
+        >
           <NavButton
             icon="search"
             hotkey="shift + s"

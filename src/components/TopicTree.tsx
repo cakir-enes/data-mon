@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Tree,
   ITreeNode,
@@ -6,9 +6,11 @@ import {
   Position,
   Icon,
   Intent,
-  Classes
+  Classes,
+  Button
 } from "@blueprintjs/core";
 import { topicApi } from "../api/TopicApi";
+import { string } from "prop-types";
 
 export interface ITreeExampleState {
   nodes: ITreeNode[];
@@ -17,6 +19,8 @@ export interface ITreeExampleState {
 export const TopicTree = ({ name }: { name: string }) => {
   const [nodes, setNodes] = useState([] as ITreeNode[]);
   const [fake, setFake] = useState(false);
+  const fields = topicApi.getFieldsOf(name);
+  let values = new Map<string, any>(fields.map(name => [name, null]));
 
   useEffect(() => {
     const root: ITreeNode = {
@@ -25,11 +29,11 @@ export const TopicTree = ({ name }: { name: string }) => {
       childNodes: [],
       isExpanded: true
     };
-    const fields = topicApi.getFieldsOf(name);
 
     function insert(node: ITreeNode, path: string) {
       const pathParts = path.split(".");
       let current = node;
+      let lastElementIdx = pathParts.length - 1;
       pathParts.forEach((part, i) => {
         let children = current.childNodes || [];
         let alreadyExists = false;
@@ -41,7 +45,10 @@ export const TopicTree = ({ name }: { name: string }) => {
             label: part,
             id: current.label + part,
             isExpanded: true,
-            childNodes: i == pathParts.length - 1 ? undefined : []
+            secondaryLabel: i == lastElementIdx && (
+              <StrNumInput cb={val => values.set(path, val)} />
+            ),
+            childNodes: i == lastElementIdx ? undefined : []
           };
           children.push(node);
           current = node;
@@ -96,12 +103,31 @@ export const TopicTree = ({ name }: { name: string }) => {
   };
 
   return (
-    <Tree
-      contents={nodes}
-      onNodeClick={handleNodeClick}
-      onNodeCollapse={handleNodeCollapse}
-      onNodeExpand={handleNodeExpand}
-      className={Classes.ELEVATION_0}
+    <>
+      <Tree
+        contents={nodes}
+        onNodeClick={handleNodeClick}
+        onNodeCollapse={handleNodeCollapse}
+        onNodeExpand={handleNodeExpand}
+        className={Classes.ELEVATION_0}
+      />
+      <Button text="REAL PUB" onClick={() => console.log(values)} />
+    </>
+  );
+};
+
+const StrNumInput: React.FC<{ cb: (val: string) => void }> = ({ cb }) => {
+  let [val, setVal] = useState("");
+  let handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+    setVal(evt.target.value);
+    cb(val);
+  };
+  return (
+    <input
+      className={Classes.INPUT}
+      type="text"
+      value={val}
+      onChange={handleChange}
     />
   );
 };
